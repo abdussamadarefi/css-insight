@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "out",
+    "rootDir": "src",
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "checkJs": true  // Enable type checking on JavaScript files
+  },
+  "include": ["src/**/*"],
+  "exclude": ["out"]
+}
