@@ -3,7 +3,7 @@
   "displayName": "CSS Insight",
   "version": "0.0.1",
   "description": "An extension to show CSS styles on hover. This extension provides a hover feature that displays the CSS styles associated with Bootstrap, Tailwind, and custom classes and IDs directly in your HTML files. It also includes a completion provider that suggests CSS classes as you type.",
-  "publisher": "your-publisher-name",
+  "publisher": "abdussamadarefi",
   "main": "./src/extension.js",
   "icon": "images/logo.png",
   "scripts": {
