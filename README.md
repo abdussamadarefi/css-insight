@@ -39,6 +39,35 @@ To contribute to the development of this extension, follow these steps:
 3. Open the project in Visual Studio Code.
 4. Press `F5` to start debugging the extension.
 
+## Building and Packaging
+
+To build and package the extension, follow these steps:
+
+1. **Ensure Dependencies are Installed**:
+   ```sh
+   npm install
+   ```
+
+2. **Install VSCE (Visual Studio Code Extension Manager)**:
+   ```sh
+   npm install -g vsce
+   ```
+
+3. **Package the Extension**:
+   ```sh
+   vsce package
+   ```
+
+4. **Publish the Extension**:
+   - **Login to VSCE**:
+     ```sh
+     vsce login <publisher-name>
+     ```
+   - **Publish the Extension**:
+     ```sh
+     vsce publish
+     ```
+
 ## License
 
 This extension is licensed under the [MIT License](LICENSE).

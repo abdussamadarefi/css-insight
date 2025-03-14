@@ -2,27 +2,31 @@
   "name": "css-insight",
   "displayName": "CSS Insight",
   "version": "0.0.1",
-  "description": "An extension to show CSS styles on hover. This extension provides a hover feature that displays the CSS styles associated with Bootstrap, Tailwind, and custom classes and IDs directly in your HTML files. It also includes a completion provider that suggests CSS classes as you type.",
+  "description": "An extension to show CSS styles on hover. This extension provides a hover feature that displays the CSS styles associated with Bootstrap, Tailwind, and custom classes and IDs directly in your HTML and React files. It also includes a completion provider that suggests CSS classes as you type.",
   "publisher": "abdussamadarefi",
   "main": "./src/extension.js",
   "icon": "images/logo.png",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "echo 'No TypeScript compilation needed'",
-    "watch": "echo 'No TypeScript compilation needed'",
-    "pretest": "npm run lint",
-    "lint": "eslint src --ext js",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "fetch-bootstrap-classes": "node ./scripts/fetch-bootstrap-classes.js",
-    "fetch-tailwind-classes": "node ./scripts/fetch-tailwind-classes.js",
-    "fetch-custom-classes": "node ./scripts/fetch-custom-classes.js",
-    "postinstall": "npm install"
+    "fetch-tailwind-classes": "node ./scripts/fetch-tailwind-classes.js"
   },
   "engines": {
     "vscode": "^1.50.0"
   },
   "categories": ["Other"],
-  "activationEvents": ["onLanguage:html"],
+  "activationEvents": [
+    "onLanguage:html",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact"
+  ],
   "contributes": {
     "commands": [
       {
@@ -45,6 +49,7 @@
   "devDependencies": {
     "@types/node": "^14.14.6",
     "@types/vscode": "^1.50.0",
+    "typescript": "^4.0.3",
     "eslint": "^7.10.0",
     "vscode-test": "^1.4.0",
     "vscode": "^1.1.37"

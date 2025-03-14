@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const axios = require('axios').default;
 
@@ -11,58 +11,65 @@ let cachedCSS = {};
 function activate(context) {
     console.log("CSS Insight extension activated");
 
-    let hoverProvider = vscode.languages.registerHoverProvider('html', {
-        /**
-         * @param {vscode.TextDocument} document
-         * @param {vscode.Position} position
-         * @returns {Promise<vscode.Hover | undefined>}
-         */
-        async provideHover(document, position) {
-            console.log("Hover provider triggered");
-            const range = document.getWordRangeAtPosition(position, /class="([^"]+)"|id="([^"]+)"/);
-            if (!range) return;
+    let hoverProvider = vscode.languages.registerHoverProvider(
+        ['html', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact'],
+        {
+            /**
+             * @param {vscode.TextDocument} document
+             * @param {vscode.Position} position
+             * @returns {Promise<vscode.Hover | undefined>}
+             */
+            async provideHover(document, position) {
+                console.log("Hover provider triggered");
+                const range = document.getWordRangeAtPosition(position, /className="([^"]+)"|class="([^"]+)"|id="([^"]+)"/);
+                if (!range) return;
 
-            const text = document.getText(range);
-            const classNames = text.match(/class="([^"]+)"/) ? text.match(/class="([^"]+)"/)[1].split(/\s+/) : [];
-            const idNames = text.match(/id="([^"]+)"/) ? [text.match(/id="([^"]+)"/)[1]] : [];
+                const text = document.getText(range);
+                const classNames = text.match(/class(Name)?="([^"]+)"/) ? text.match(/class(Name)?="([^"]+)"/)[2].split(/\s+/) : [];
+                const idNames = text.match(/id="([^"]+)"/) ? [text.match(/id="([^"]+)"/)[1]] : [];
 
-            let hoverContent = "";
-            for (let name of [...classNames, ...idNames]) {
-                let cssData = await fetchCSS(name, document);
-                if (cssData) {
-                    hoverContent += `**${name.startsWith('#') ? name : '.' + name}**\n\`\`\`css\n${cssData}\n\`\`\`\n`;
+                let hoverContent = "";
+                for (let name of [...classNames, ...idNames]) {
+                    let cssData = await fetchCSS(name, document);
+                    if (cssData) {
+                        hoverContent += `**${name.startsWith('#') ? name : '.' + name}**\n\`\`\`css\n${cssData}\n\`\`\`\n`;
+                    }
+                }
+
+                if (hoverContent) {
+                    return new vscode.Hover(new vscode.MarkdownString(hoverContent));
                 }
             }
+        }
+    );
 
-            if (hoverContent) {
-                return new vscode.Hover(new vscode.MarkdownString(hoverContent));
+    let completionProvider = vscode.languages.registerCompletionItemProvider(
+        ['html', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact'],
+        {
+            /**
+             * @param {vscode.TextDocument} document
+             * @param {vscode.Position} position
+             * @returns {Promise<vscode.CompletionItem[]>}
+             */
+            async provideCompletionItems(document, position) {
+                const text = document.getText();
+                const linkedCSS = await fetchLinkedCSS(document);
+                const bootstrapDefinitions = await fetchBootstrapDefinitions();
+                const tailwindDefinitions = await fetchTailwindDefinitions();
+                const customDefinitions = await fetchCustomDefinitions();
+
+                const allClasses = { ...bootstrapDefinitions, ...tailwindDefinitions, ...customDefinitions, ...linkedCSS };
+                const completionItems = Object.keys(allClasses).map(className => {
+                    const item = new vscode.CompletionItem(className, vscode.CompletionItemKind.Class);
+                    item.detail = allClasses[className];
+                    return item;
+                });
+
+                return completionItems;
             }
-        }
-    });
-
-    let completionProvider = vscode.languages.registerCompletionItemProvider('html', {
-        /**
-         * @param {vscode.TextDocument} document
-         * @param {vscode.Position} position
-         * @returns {Promise<vscode.CompletionItem[]>}
-         */
-        async provideCompletionItems(document, position) {
-            const text = document.getText();
-            const linkedCSS = await fetchLinkedCSS(document);
-            const bootstrapDefinitions = await fetchBootstrapDefinitions();
-            const tailwindDefinitions = await fetchTailwindDefinitions();
-            const customDefinitions = await fetchCustomDefinitions();
-
-            const allClasses = { ...bootstrapDefinitions, ...tailwindDefinitions, ...customDefinitions, ...linkedCSS };
-            const completionItems = Object.keys(allClasses).map(className => {
-                const item = new vscode.CompletionItem(className, vscode.CompletionItemKind.Class);
-                item.detail = allClasses[className];
-                return item;
-            });
-
-            return completionItems;
-        }
-    }, '"');
+        },
+        '"'
+    );
 
     context.subscriptions.push(hoverProvider, completionProvider);
     console.log("Hover and completion providers registered");
@@ -98,7 +105,8 @@ async function fetchCSS(name, document) {
  */
 async function fetchBootstrapDefinitions() {
     const bootstrapPath = path.join(__dirname, 'bootstrap-classes.json');
-    return JSON.parse(fs.readFileSync(bootstrapPath, 'utf8'));
+    const data = await fs.readFile(bootstrapPath, 'utf8');
+    return JSON.parse(data);
 }
 
 /**
@@ -106,7 +114,8 @@ async function fetchBootstrapDefinitions() {
  */
 async function fetchTailwindDefinitions() {
     const tailwindPath = path.join(__dirname, 'tailwind-classes.json');
-    return JSON.parse(fs.readFileSync(tailwindPath, 'utf8'));
+    const data = await fs.readFile(tailwindPath, 'utf8');
+    return JSON.parse(data);
 }
 
 /**
@@ -114,8 +123,9 @@ async function fetchTailwindDefinitions() {
  */
 async function fetchCustomDefinitions() {
     const customPath = path.join(__dirname, 'custom-classes.json');
-    if (fs.existsSync(customPath)) {
-        return JSON.parse(fs.readFileSync(customPath, 'utf8'));
+    if (await fs.access(customPath).then(() => true).catch(() => false)) {
+        const data = await fs.readFile(customPath, 'utf8');
+        return JSON.parse(data);
     }
     return {};
 }
