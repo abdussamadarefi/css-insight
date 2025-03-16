@@ -1,6 +1,6 @@
-# CSS Hover Insight
+# CSS Insight
 
-CSS Hover Insight is a powerful Visual Studio Code extension that enhances your development workflow by providing a hover feature to display the CSS styles associated with Bootstrap, Tailwind, and custom classes and IDs directly in your HTML files. It also includes a completion provider that suggests CSS classes as you type.
+CSS Insight is a powerful Visual Studio Code extension that enhances your development workflow by providing a hover feature to display the CSS styles associated with Bootstrap, Tailwind, and custom classes and IDs directly in your HTML files. It also includes a completion provider that suggests CSS classes as you type.
 
 ## Features
 

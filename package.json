@@ -1,7 +1,7 @@
 {
-  "name": "css-hover-insight",
-  "displayName": "CSS Hover Insight",
-  "version": "0.0.1",
+  "name": "css-insight",
+  "displayName": "CSS Insight",
+  "version": "0.0.2",
   "description": "An extension to show CSS styles on hover. This extension provides a hover feature that displays the CSS styles associated with Bootstrap, Tailwind, and custom classes and IDs directly in your HTML and React files. It also includes a completion provider that suggests CSS classes as you type.",
   "publisher": "abdussamadarefi",
   "main": "./out/extension.js",
@@ -80,5 +80,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/abdussamadarefi/css-insight"
-  }
+  },
+  "license": "MIT"
 }
